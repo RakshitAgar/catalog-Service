@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import jakarta.persistence.CascadeType;
-import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
@@ -14,10 +13,9 @@ import java.util.List;
 @Getter
 @Table(name = "restaurants")
 public class Restaurant {
-    @jakarta.persistence.Id
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
     private String location;
 

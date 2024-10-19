@@ -4,17 +4,24 @@ import com.example.catalog_service.Exceptions.InvalidRestaurantRegistrationCrede
 import com.example.catalog_service.Exceptions.RestaurantAlreadyExistException;
 import com.example.catalog_service.Model.Restaurant;
 import com.example.catalog_service.Repository.RestaurantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class RestaurantService {
+
+    @Autowired
     private RestaurantRepository restaurantRepository;
 
 
     public List<Restaurant> getRestaurants() {
-        return restaurantRepository.findAll();
+        List<Restaurant> restaurantList = restaurantRepository.findAll();
+        if(restaurantList.isEmpty()){
+            throw new RuntimeException("No restaurants found");
+        }
+        return restaurantList;
     }
 
     public void addRestaurant(String name, String Location) {
@@ -22,7 +29,7 @@ public class RestaurantService {
             throw new InvalidRestaurantRegistrationCredentials("Name and location cannot be empty");
         }
         // finding that the restaurant with same name and location cannot Exist
-        if(restaurantRepository.findByName(name).isPresent() && restaurantRepository.findByLocation(Location).isPresent()){
+        if(restaurantRepository.findByNameAndLocation(name, Location).isPresent()){
             throw new RestaurantAlreadyExistException("Restaurant with same name and location alreadyExists");
         }
 
