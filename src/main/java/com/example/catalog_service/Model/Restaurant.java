@@ -1,5 +1,6 @@
 package com.example.catalog_service.Model;
 
+import com.example.catalog_service.Exceptions.InvalidRestaurantRegistrationCredentials;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -24,6 +25,9 @@ public class Restaurant {
     private List<MenuItem> menuItems;
 
     public Restaurant(String name, String location) {
+        if(name.isBlank() || name == null || location.isBlank() || location == null){
+            throw new InvalidRestaurantRegistrationCredentials("Name and location cannot be empty");
+        }
         this.name = name;
         this.location = location;
     }
