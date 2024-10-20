@@ -1,7 +1,6 @@
 package com.example.catalog_service.Service;
 
 import com.example.catalog_service.Exceptions.InvalidMenuItemCredentialsException;
-import com.example.catalog_service.Exceptions.MenuItemAlreadyPresentException;
 import com.example.catalog_service.Exceptions.MenuItemEmptyException;
 import com.example.catalog_service.Exceptions.RestaurantNotFoundException;
 import com.example.catalog_service.Model.MenuItem;
@@ -54,14 +53,21 @@ class MenuItemServiceTest {
 
     @Test
     void testGetMenuItems_EmptyList() {
+        Long restaurantId = 1L;
+        when(restaurantRepository.existsById(restaurantId)).thenReturn(true);
         when(menuItemRepository.findAll()).thenReturn(Collections.emptyList());
-        assertThrows(MenuItemEmptyException.class, () -> menuItemService.getMenuItems());
+
+        assertThrows(MenuItemEmptyException.class, () -> menuItemService.getMenuItems(restaurantId));
     }
 
     @Test
     void testGetMenuItems_NonEmptyList() {
+        Long restaurantId = 1L;
+        when(restaurantRepository.existsById(restaurantId)).thenReturn(true);
         when(menuItemRepository.findAll()).thenReturn(List.of(menuItem));
-        List<MenuItemResponseDTO> menuItems = menuItemService.getMenuItems();
+
+        List<MenuItemResponseDTO> menuItems = menuItemService.getMenuItems(restaurantId);
+
         assertEquals(1, menuItems.size());
         assertEquals("Pizza", menuItems.get(0).getName());
     }

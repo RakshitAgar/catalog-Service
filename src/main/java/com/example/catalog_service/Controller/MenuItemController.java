@@ -6,6 +6,7 @@ import com.example.catalog_service.Exceptions.MenuItemEmptyException;
 import com.example.catalog_service.Exceptions.RestaurantNotFoundException;
 import com.example.catalog_service.Model.MenuItem;
 import com.example.catalog_service.Service.MenuItemService;
+import com.example.catalog_service.Service.RestaurantService;
 import com.example.catalog_service.dto.MenuItemRequestDTO;
 import com.example.catalog_service.dto.MenuItemResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +24,14 @@ public class MenuItemController {
     private MenuItemService menuItemService;
 
     @GetMapping("/menuItem")
-    public ResponseEntity<?> getMenuItems() {
+    public ResponseEntity<?> getMenuItems(@PathVariable Long restaurantId) {
         try {
-            List<MenuItemResponseDTO> menuItemList = menuItemService.getMenuItems();
+            List<MenuItemResponseDTO> menuItemList = menuItemService.getMenuItems(restaurantId);
             return ResponseEntity.ok(menuItemList);
         } catch (MenuItemEmptyException e) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        } catch (RestaurantNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 

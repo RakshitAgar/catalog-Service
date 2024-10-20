@@ -10,7 +10,6 @@ import com.example.catalog_service.Repository.MenuItemRepository;
 import com.example.catalog_service.Repository.RestaurantRepository;
 import com.example.catalog_service.dto.MenuItemRequestDTO;
 import com.example.catalog_service.dto.MenuItemResponseDTO;
-import com.example.catalog_service.enums.FoodCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,19 +25,29 @@ public class MenuItemService {
     private RestaurantRepository restaurantRepository;
 
 
-    public List<MenuItemResponseDTO> getMenuItems() {
-        List<MenuItem> menuItems = menuItemRepository.findAll();
-        if (menuItems.isEmpty()) {
-            throw new MenuItemEmptyException("No menu items found");
+    public List<MenuItemResponseDTO> getMenuItems(Long restaurantId) {
+
+        try {
+            if(!restaurantRepository.existsById(restaurantId)){
+                throw new RestaurantNotFoundException("Restaurant not found");
+            }
+            List<MenuItem> menuItems = menuItemRepository.findAll();
+            if (menuItems.isEmpty()) {
+                throw new MenuItemEmptyException("No menu items found");
+            }
+            return menuItems.stream()
+                    .map(menuItem -> new MenuItemResponseDTO(
+                            menuItem.getId(),
+                            menuItem.getRestaurant().getId(),
+                            menuItem.getName(),
+                            menuItem.getCategory(),
+                            menuItem.getPrice()))
+                    .collect(Collectors.toList());
+        } catch (MenuItemEmptyException e) {
+            throw new MenuItemEmptyException(e.getMessage());
+        } catch (RestaurantNotFoundException e) {
+            throw new RestaurantNotFoundException(e.getMessage());
         }
-        return menuItems.stream()
-                .map(menuItem -> new MenuItemResponseDTO(
-                        menuItem.getId(),
-                        menuItem.getRestaurant().getId(),
-                        menuItem.getName(),
-                        menuItem.getCategory(),
-                        menuItem.getPrice()))
-                .collect(Collectors.toList());
     }
 
 public void addMenuItem(MenuItemRequestDTO menuItemRequestDTO, Long restaurantId) {

@@ -101,7 +101,7 @@ public class MenuItemControllerTest {
                 new MenuItemResponseDTO(1L, 1L, "Burger", FoodCategory.INDIAN, 10.0)
         );
 
-        when(menuItemService.getMenuItems()).thenReturn(menuItemList);
+        when(menuItemService.getMenuItems(anyLong())).thenReturn(menuItemList);
 
         String expectedJsonResponse = "[{\"id\":1,\"restaurantID\":1,\"name\":\"Burger\",\"category\":\"INDIAN\",\"price\":10.0}]";
 
@@ -111,15 +111,25 @@ public class MenuItemControllerTest {
                 .andExpect(content().json(expectedJsonResponse));
     }
 
-
     @Test
     void testGetMenuItems_Empty() throws Exception {
         doThrow(new MenuItemEmptyException("No menu items found"))
-                .when(menuItemService).getMenuItems();
+                .when(menuItemService).getMenuItems(anyLong());
 
         mockMvc.perform(get("/catalog/restaurant/1/menuItem")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string("No menu items found"));
+    }
+
+    @Test
+    void testGetMenuItems_InvalidRestaurantId() throws Exception {
+        doThrow(new RestaurantNotFoundException("Restaurant not found"))
+                .when(menuItemService).getMenuItems(anyLong());
+
+        mockMvc.perform(get("/catalog/restaurant/1/menuItem")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Restaurant not found"));
     }
 }
