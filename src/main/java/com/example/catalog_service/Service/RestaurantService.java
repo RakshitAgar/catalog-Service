@@ -2,6 +2,7 @@ package com.example.catalog_service.Service;
 
 import com.example.catalog_service.Exceptions.InvalidRestaurantRegistrationCredentials;
 import com.example.catalog_service.Exceptions.RestaurantAlreadyExistException;
+import com.example.catalog_service.Exceptions.RestaurantNotFoundException;
 import com.example.catalog_service.Model.Restaurant;
 import com.example.catalog_service.Repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,5 +35,10 @@ public class RestaurantService {
         }
 
         restaurantRepository.save(new Restaurant(name,Location));
+    }
+
+    public Restaurant getRestaurantById(Long restaurantId) {
+        return restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant not found"));
     }
 }

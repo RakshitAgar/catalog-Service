@@ -2,6 +2,7 @@ package com.example.catalog_service.Service;
 
 import com.example.catalog_service.Exceptions.InvalidRestaurantRegistrationCredentials;
 import com.example.catalog_service.Exceptions.RestaurantAlreadyExistException;
+import com.example.catalog_service.Exceptions.RestaurantNotFoundException;
 import com.example.catalog_service.Model.Restaurant;
 import com.example.catalog_service.Repository.RestaurantRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,5 +87,32 @@ class RestaurantServiceTest {
         });
 
         assertEquals("Restaurant with same name and location alreadyExists", exception.getMessage());
+    }
+
+    @Test
+    void testGetRestaurantById_Success() {
+        Long restaurantId = 1L;
+        Restaurant restaurant = new Restaurant("Test Restaurant", "Test Location");
+
+        when(restaurantRepository.findById(restaurantId)).thenReturn(Optional.of(restaurant));
+
+        Restaurant result = restaurantService.getRestaurantById(restaurantId);
+
+        assertNotNull(result);
+        assertEquals("Test Restaurant", result.getName());
+        assertEquals("Test Location", result.getLocation());
+    }
+
+    @Test
+    void testGetRestaurantById_NotFound() {
+        Long restaurantId = 1L;
+
+        when(restaurantRepository.findById(restaurantId)).thenReturn(Optional.empty());
+
+        RestaurantNotFoundException exception = assertThrows(RestaurantNotFoundException.class, () -> {
+            restaurantService.getRestaurantById(restaurantId);
+        });
+
+        assertEquals("Restaurant not found", exception.getMessage());
     }
 }

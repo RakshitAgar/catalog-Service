@@ -2,6 +2,7 @@ package com.example.catalog_service.Controller;
 
 import com.example.catalog_service.Exceptions.InvalidRestaurantRegistrationCredentials;
 import com.example.catalog_service.Exceptions.RestaurantAlreadyExistException;
+import com.example.catalog_service.Exceptions.RestaurantNotFoundException;
 import com.example.catalog_service.Model.Restaurant;
 import com.example.catalog_service.Service.RestaurantService;
 import com.example.catalog_service.dto.RestaurantRequestDTO;
@@ -38,6 +39,16 @@ public class RestaurantController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
 
+    }
+
+    @GetMapping("/restaurants/{restaurantId}")
+    public ResponseEntity<?> getRestaurantById(@PathVariable Long restaurantId) {
+        try {
+            Restaurant restaurant = restaurantService.getRestaurantById(restaurantId);
+            return ResponseEntity.ok(restaurant);
+        } catch (RestaurantNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
 }

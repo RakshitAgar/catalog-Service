@@ -2,6 +2,7 @@ package com.example.catalog_service.Controller;
 
 import com.example.catalog_service.Exceptions.InvalidRestaurantRegistrationCredentials;
 import com.example.catalog_service.Exceptions.RestaurantAlreadyExistException;
+import com.example.catalog_service.Exceptions.RestaurantNotFoundException;
 import com.example.catalog_service.Model.Restaurant;
 import com.example.catalog_service.Service.RestaurantService;
 import com.example.catalog_service.dto.RestaurantRequestDTO;
@@ -71,7 +72,7 @@ void testGetRestaurants() throws Exception {
         mockMvc.perform(post("/catalog/restaurants")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(restaurantRequestDTO)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(content().string("Restaurant added successfully"));
     }
 
@@ -119,6 +120,29 @@ void testGetRestaurants() throws Exception {
                 .andExpect(content().string("Restaurant with same name and location alreadyExists"));
         verify(restaurantService,times(1)).addRestaurant(anyString(),anyString());
 
+    }
+
+    @Test
+    void testGetRestaurantById() throws Exception {
+        Restaurant restaurant = new Restaurant("Restaurant1", "Location1");
+        Long restaurantId = 1L;
+
+        Mockito.when(restaurantService.getRestaurantById(restaurantId)).thenReturn(restaurant);
+
+        mockMvc.perform(get("/catalog/restaurants/{restaurantId}", restaurantId))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(restaurant)));
+    }
+
+    @Test
+    void testGetRestaurantById_NotFound() throws Exception {
+        Long restaurantId = 1L;
+
+        Mockito.when(restaurantService.getRestaurantById(restaurantId)).thenThrow(new RestaurantNotFoundException("Restaurant not found"));
+
+        mockMvc.perform(get("/catalog/restaurants/{restaurantId}", restaurantId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Restaurant not found"));
     }
 
 }
