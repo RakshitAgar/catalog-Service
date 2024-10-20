@@ -93,4 +93,51 @@ class MenuItemServiceTest {
 
         verify(menuItemRepository, times(1)).save(any(MenuItem.class));
     }
+
+    @Test
+    void testGetMenuItemById_Success() {
+        Long restaurantId = 1L;
+        Long menuItemId = 1L;
+        MenuItem menuItem = new MenuItem("Pizza", 10.0, FoodCategory.CHINESE, restaurant);
+        menuItem.setId(menuItemId);
+
+        when(restaurantRepository.existsById(restaurantId)).thenReturn(true);
+        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItem));
+
+        MenuItemResponseDTO result = menuItemService.getMenuItemById(restaurantId, menuItemId);
+
+        assertNotNull(result);
+        assertEquals("Pizza", result.getName());
+        assertEquals(FoodCategory.CHINESE, result.getCategory());
+        assertEquals(10.0, result.getPrice());
+    }
+
+    @Test
+    void testGetMenuItemById_RestaurantNotFound() {
+        Long restaurantId = 1L;
+        Long menuItemId = 1L;
+
+        when(restaurantRepository.existsById(restaurantId)).thenReturn(false);
+
+        RestaurantNotFoundException exception = assertThrows(RestaurantNotFoundException.class, () -> {
+            menuItemService.getMenuItemById(restaurantId, menuItemId);
+        });
+
+        assertEquals("Restaurant not found", exception.getMessage());
+    }
+
+    @Test
+    void testGetMenuItemById_MenuItemNotFound() {
+        Long restaurantId = 1L;
+        Long menuItemId = 1L;
+
+        when(restaurantRepository.existsById(restaurantId)).thenReturn(true);
+        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.empty());
+
+        MenuItemEmptyException exception = assertThrows(MenuItemEmptyException.class, () -> {
+            menuItemService.getMenuItemById(restaurantId, menuItemId);
+        });
+
+        assertEquals("Menu item not found", exception.getMessage());
+    }
 }

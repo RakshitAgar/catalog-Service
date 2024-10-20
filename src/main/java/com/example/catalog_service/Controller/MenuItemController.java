@@ -49,6 +49,16 @@ public class MenuItemController {
         }
     }
 
+    @GetMapping("/menu/{menuItemId}")
+    public ResponseEntity<?> getMenuItemById(@PathVariable Long restaurantId, @PathVariable Long menuItemId) {
+        try {
+            MenuItemResponseDTO menuItem = menuItemService.getMenuItemById(restaurantId, menuItemId);
+            return ResponseEntity.ok(menuItem);
+        } catch (RestaurantNotFoundException | MenuItemEmptyException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
 
 }
 

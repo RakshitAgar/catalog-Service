@@ -71,4 +71,27 @@ public void addMenuItem(MenuItemRequestDTO menuItemRequestDTO, Long restaurantId
         throw new MenuItemAlreadyPresentException(e.getMessage());
     }
 }
+
+    public MenuItemResponseDTO getMenuItemById(Long restaurantId, Long menuItemId) {
+        try {
+            if (!restaurantRepository.existsById(restaurantId)) {
+                throw new RestaurantNotFoundException("Restaurant not found");
+            }
+
+            MenuItem menuItem = menuItemRepository.findById(menuItemId)
+                    .orElseThrow(() -> new MenuItemEmptyException("Menu item not found"));
+
+            return new MenuItemResponseDTO(
+                    menuItem.getId(),
+                    menuItem.getRestaurant().getId(),
+                    menuItem.getName(),
+                    menuItem.getCategory(),
+                    menuItem.getPrice()
+            );
+        } catch (RestaurantNotFoundException e) {
+            throw new RestaurantNotFoundException(e.getMessage());
+        } catch (MenuItemEmptyException e) {
+            throw new MenuItemEmptyException(e.getMessage());
+        }
+    }
 }

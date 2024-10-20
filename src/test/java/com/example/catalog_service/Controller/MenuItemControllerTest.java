@@ -132,4 +132,44 @@ public class MenuItemControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Restaurant not found"));
     }
+
+    @Test
+    void testGetMenuItemById_Success() throws Exception {
+        Long restaurantId = 1L;
+        Long menuItemId = 1L;
+        MenuItemResponseDTO menuItemResponseDTO = new MenuItemResponseDTO(menuItemId, restaurantId, "Burger", FoodCategory.INDIAN, 10.0);
+
+        when(menuItemService.getMenuItemById(restaurantId, menuItemId)).thenReturn(menuItemResponseDTO);
+
+        mockMvc.perform(get("/catalog/restaurant/{restaurantId}/menu/{menuItemId}", restaurantId, menuItemId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"restaurantID\":1,\"name\":\"Burger\",\"category\":\"INDIAN\",\"price\":10.0}"));
+    }
+
+    @Test
+    void testGetMenuItemById_RestaurantNotFound() throws Exception {
+        Long restaurantId = 1L;
+        Long menuItemId = 1L;
+
+        when(menuItemService.getMenuItemById(restaurantId, menuItemId)).thenThrow(new RestaurantNotFoundException("Restaurant not found"));
+
+        mockMvc.perform(get("/catalog/restaurant/{restaurantId}/menu/{menuItemId}", restaurantId, menuItemId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Restaurant not found"));
+    }
+
+    @Test
+    void testGetMenuItemById_MenuItemNotFound() throws Exception {
+        Long restaurantId = 1L;
+        Long menuItemId = 1L;
+
+        when(menuItemService.getMenuItemById(restaurantId, menuItemId)).thenThrow(new MenuItemEmptyException("Menu item not found"));
+
+        mockMvc.perform(get("/catalog/restaurant/{restaurantId}/menu/{menuItemId}", restaurantId, menuItemId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Menu item not found"));
+    }
 }
