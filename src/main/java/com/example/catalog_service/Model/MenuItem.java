@@ -1,5 +1,6 @@
 package com.example.catalog_service.Model;
 
+import com.example.catalog_service.enums.FoodCategory;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -18,11 +19,15 @@ public class MenuItem {
     private Restaurant restaurant;
 
     private String name;
-    private double price;
+    @Enumerated(EnumType.STRING)
+    private FoodCategory category;
+    private Double price;
 
-    public MenuItem(String name, double price, String description) {
+    public MenuItem(String name, Double price, FoodCategory category, Restaurant restaurant) {
         this.name = name;
         this.price = price;
+        this.category = category;
+        this.restaurant = restaurant;
     }
 
     public MenuItem() {
